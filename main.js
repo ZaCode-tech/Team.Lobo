@@ -1,3 +1,6 @@
+// Garante que todos os elementos .reveal fiquem visíveis imediatamente
+document.querySelectorAll(".reveal").forEach((el) => el.classList.add("is-visible"));
+
 // Configuração central de atendimento (WhatsApp oficial Team Lobo)
 const WHATSAPP_NUMBER = "5521982814880";
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
