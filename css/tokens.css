@@ -1,0 +1,21 @@
+/* Tokens: cores, tipografia, espaços. Tema claro/escuro via light-dark() + [data-theme] */
+:root{
+  color-scheme:light dark;
+  /* Paleta: papel e tinta + "brasa" (laranja-avermelhado) como único destaque */
+  --bg:light-dark(#f4f0e8,#101010);
+  --surface:light-dark(#fbf9f4,#181716);
+  --text:light-dark(#17150f,#f0ece4);
+  --muted:light-dark(#5d584d,#a39d91);
+  --line:light-dark(rgba(23,21,15,.15),rgba(240,236,228,.14));
+  --accent:light-dark(#d03f18,#ff6a3d);
+  --on-accent:light-dark(#fff,#1a0b05);
+  --font-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --font-serif:"Instrument Serif",Georgia,serif;
+  --font-body:"Hanken Grotesk",system-ui,sans-serif;
+  --pad:clamp(1.25rem,5vw,4.5rem);
+  --max:1180px;
+  --radius:1.1rem;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+[data-theme=dark]{color-scheme:dark}
+[data-theme=light]{color-scheme:light}
