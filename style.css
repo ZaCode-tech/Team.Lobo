@@ -1389,17 +1389,16 @@ h3 { font-size: 1.32rem; font-weight: 700; }
 
 .footer-bottom a:hover { color: var(--text); }
 
-/* Staggered Scroll Reveal */
+/* Staggered Scroll Reveal — 100% visível por padrão (nunca deixa tela vazia) */
 .reveal {
-  opacity: 0;
-  transform: translateY(24px);
+  opacity: 1 !important;
+  transform: none !important;
   transition: opacity 0.65s var(--ease-spring), transform 0.65s var(--ease-spring);
-  transition-delay: var(--reveal-delay, 0ms);
 }
 
 .reveal.is-visible {
-  opacity: 1;
-  transform: translateY(0);
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
 /* Responsividade */
