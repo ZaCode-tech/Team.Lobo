@@ -15,14 +15,17 @@
 <link rel="icon" href="assets/teamlobo.jpg">
 <script>
 document.documentElement.classList.add("js");
+setTimeout(function(){if(!document.documentElement.dataset.ready)document.documentElement.classList.remove("js")},3500);
 try{var s=localStorage.getItem("tl-theme");document.documentElement.dataset.theme=s||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark")}catch(e){document.documentElement.dataset.theme="dark"}
 </script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Team Lobo Assessoria Esportiva","email":"team_lobo@yahoo.com","areaServed":"Rio de Janeiro, Brasil","founder":{"@type":"Person","name":"Sid Lobo"},"sameAs":["https://www.instagram.com/team_lobo_assessoriaesportiva","https://www.instagram.com/sid.lobo_treinador"],"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"09:30","closes":"18:00"},"hasOfferCatalog":{"@type":"OfferCatalog","itemListElement":[{"@type":"Offer","name":"Plano mensal","price":"300.00","priceCurrency":"BRL"},{"@type":"Offer","name":"Plano bimestral","price":"420.00","priceCurrency":"BRL"},{"@type":"Offer","name":"Plano anual","price":"1500.00","priceCurrency":"BRL"}]}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=4">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600&family=Archivo:wdth,wght@62..125,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
+<div class="intro" aria-hidden="true"><img src="assets/teamlobo.jpg" alt="" width="92" height="92"><b class="chrome">Team Lobo</b></div>
+<div class="barbell" aria-hidden="true"><i></i></div>
 <a class="skip" href="#conteudo">Pular para o conteúdo</a>
 
 <header class="top">
@@ -75,10 +78,10 @@ try{var s=localStorage.getItem("tl-theme");document.documentElement.dataset.them
     <div class="wrap">
       <div class="head rv"><span class="tag">Como trabalhamos</span><h2>Nada de planilha pronta. <span class="chrome">Seu protocolo nasce da sua rotina.</span></h2><p>Cada corpo responde de um jeito a estímulos, horários e cargas. O acompanhamento se apoia em quatro pilares.</p></div>
       <div class="pillars">
-        <article class="card pillar rv"><b class="chrome">01</b><h3>Treino individualizado</h3><p>Volume, intensidade e exercícios pensados para o seu nível, o seu histórico e o tempo que você tem na semana.</p></article>
-        <article class="card pillar rv" style="--d:1"><b class="chrome">02</b><h3>Estratégia nutricional</h3><p>Plano alimentar alinhado ao seu gasto de energia e às suas preferências, com trocas práticas para manter a constância.</p></article>
-        <article class="card pillar rv" style="--d:2"><b class="chrome">03</b><h3>Suporte direto</h3><p>Canal aberto para tirar dúvidas, corrigir a execução e ajustar cargas e calorias conforme o corpo evolui.</p></article>
-        <article class="card pillar rv" style="--d:3"><b class="chrome">04</b><h3>Preparação de atletas</h3><p>Acompanhamento para quem vai competir, com a experiência de campeonatos estaduais e regionais do Rio de Janeiro.</p></article>
+        <article class="card pillar rv" style="--d:0;--i:0"><b class="chrome">01</b><h3>Treino individualizado</h3><p>Volume, intensidade e exercícios pensados para o seu nível, o seu histórico e o tempo que você tem na semana.</p></article>
+        <article class="card pillar rv" style="--d:1;--i:1"><b class="chrome">02</b><h3>Estratégia nutricional</h3><p>Plano alimentar alinhado ao seu gasto de energia e às suas preferências, com trocas práticas para manter a constância.</p></article>
+        <article class="card pillar rv" style="--d:2;--i:2"><b class="chrome">03</b><h3>Suporte direto</h3><p>Canal aberto para tirar dúvidas, corrigir a execução e ajustar cargas e calorias conforme o corpo evolui.</p></article>
+        <article class="card pillar rv" style="--d:3;--i:3"><b class="chrome">04</b><h3>Preparação de atletas</h3><p>Acompanhamento para quem vai competir, com a experiência de campeonatos estaduais e regionais do Rio de Janeiro.</p></article>
       </div>
     </div>
   </section>
@@ -120,7 +123,7 @@ try{var s=localStorage.getItem("tl-theme");document.documentElement.dataset.them
       <div class="team">
         <article class="person rv"><div class="ph" data-mono="SL"><img src="assets/img/sid.png" data-fb="https://teamloboconsultoria.com.br/wp-content/uploads/2024/02/SID-SOCIO--683x1024.png" alt="Sid Lobo" loading="lazy" decoding="async"></div><h3>Sid Lobo</h3><p>Head coach e CEO. Educação Física (CREF 013598), fitoterapeuta e campeão de fisiculturismo.</p></article>
         <article class="person rv" style="--d:1"><div class="ph" data-mono="YR"><img src="assets/img/yago.jpg" data-fb="https://teamloboconsultoria.com.br/wp-content/uploads/2024/01/sem-titulo--683x1024.jpg" alt="Yago Romão" loading="lazy" decoding="async"></div><h3>Yago Romão</h3><p>Nutricionista esportivo (CRN 17100205) e profissional de Educação Física.</p></article>
-        
+      </div>
     </div>
   </section>
 
@@ -187,6 +190,6 @@ try{var s=localStorage.getItem("tl-theme");document.documentElement.dataset.them
 
 <a class="wa" data-wa="Olá, vim pelo site e gostaria de saber mais sobre a equipe do Team Lobo." href="#contato" aria-label="Falar no WhatsApp"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.7 7.1L4 20l1-4.9A8 8 0 1 1 21 12z"/></svg></a>
 
-<script src="script.js?v=4"></script>
+<script src="script.js?v=5"></script>
 </body>
 </html>

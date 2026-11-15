@@ -1,10 +1,11 @@
-/* TEAM LOBO v4 — interações (JavaScript puro, sem dependências) */
+/* TEAM LOBO v5 — interações (JavaScript puro, sem dependências) */
 (function () {
   "use strict";
   // WhatsApp de atendimento (o mesmo do seu script anterior). Troque aqui, se precisar.
   var WHATSAPP = "5521982814880";
   var root = document.documentElement;
   var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  root.dataset.ready = "1"; // avisa o HTML que o script carregou (senão o conteúdo é liberado sozinho)
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
 
@@ -85,6 +86,63 @@
         b.style.transform = "translate(" + (e.clientX - r.left - r.width / 2) * 0.18 + "px," + (e.clientY - r.top - r.height / 2) * 0.28 + "px)";
       });
       b.addEventListener("pointerleave", function () { b.style.transform = ""; });
+    });
+  }
+
+  /* 8. Letras cromadas: cada uma começa o brilho em um ponto diferente */
+  $$(".chrome").forEach(function (el, i) { el.style.setProperty("--n", i % 5); });
+
+  /* 9. Fotos da equipe: preto e branco; ganham cor ao parar na frente delas.
+        Navegadores com animação por rolagem usam o CSS; os demais usam este observador. */
+  if (!(window.CSS && CSS.supports("animation-timeline: view()")) || reduce) {
+    var fo = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { e.target.classList.toggle("focus", e.isIntersecting); });
+    }, { rootMargin: "-42% 0px -42% 0px" });
+    $$(".person").forEach(function (p) { fo.observe(p); });
+  }
+
+  /* 10. Barra de supino (progresso) e faixa que acelera com a rolagem */
+  var barbell = $(".barbell"), track = $(".track"), anim = null, rate = 1, lastY = scrollY, ticking = false;
+  function progress() {
+    var h = root.scrollHeight - innerHeight;
+    barbell.style.setProperty("--p", h > 0 ? Math.min(1, scrollY / h).toFixed(4) : 0);
+    ticking = false;
+  }
+  addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(progress); } }, { passive: true });
+  progress();
+  if (!reduce && track) {
+    (function loop() {
+      var dy = Math.abs(scrollY - lastY); lastY = scrollY;
+      rate += ((1 + Math.min(dy * 0.25, 8)) - rate) * 0.12;
+      if (!anim && track.getAnimations) anim = track.getAnimations()[0];
+      if (anim) anim.playbackRate = rate;
+      requestAnimationFrame(loop);
+    })();
+  }
+
+  /* 11. Cortina de entrada (uma vez por visita) */
+  var intro = $(".intro");
+  if (intro) {
+    var seen = false;
+    try { seen = sessionStorage.getItem("tl-intro"); sessionStorage.setItem("tl-intro", "1"); } catch (e) {}
+    if (seen || reduce) intro.remove(); else setTimeout(function () { intro.remove(); }, 2700);
+  }
+
+  /* 12. Só com mouse: brilho no topo e cartões que inclinam com reflexo */
+  if (!reduce && matchMedia("(pointer: fine)").matches) {
+    var hero = $(".hero");
+    hero.addEventListener("pointermove", function (e) {
+      var r = hero.getBoundingClientRect();
+      hero.style.setProperty("--mx", (e.clientX - r.left) + "px"); hero.style.setProperty("--my", (e.clientY - r.top) + "px");
+    });
+    $$(".card").forEach(function (c) {
+      c.classList.add("tilt");
+      c.addEventListener("pointermove", function (e) {
+        var r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+        c.style.transform = "perspective(900px) rotateX(" + ((0.5 - y) * 5).toFixed(2) + "deg) rotateY(" + ((x - 0.5) * 6).toFixed(2) + "deg)";
+        c.style.setProperty("--gx", x * 100 + "%"); c.style.setProperty("--gy", y * 100 + "%");
+      });
+      c.addEventListener("pointerleave", function () { c.style.transform = ""; });
     });
   }
 })();
