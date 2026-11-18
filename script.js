@@ -1,4 +1,4 @@
-/* TEAM LOBO v5 — interações (JavaScript puro, sem dependências) */
+/* TEAM LOBO v6 — interações (JavaScript puro, sem dependências) */
 (function () {
   "use strict";
   // WhatsApp de atendimento (o mesmo do seu script anterior). Troque aqui, se precisar.
@@ -145,4 +145,96 @@
       c.addEventListener("pointerleave", function () { c.style.transform = ""; });
     });
   }
+
+  /* 13. Galeria: fotos em ordem aleatória, passando sozinhas (duas faixas em sentidos opostos) */
+  var reel = $("[data-reel]"), list = (window.GALERIA || []).slice();
+  if (reel && !list.length) { var gsec = $("#galeria"); if (gsec) gsec.hidden = true; }
+  else if (reel) {
+    var shuffle = function (a) {
+      a = a.slice();
+      for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; }
+      return a;
+    };
+    var ratios = ["3/4", "1/1", "4/3", "4/5"];
+    var order = shuffle(list); // ordem usada no visualizador
+
+    var lb = document.createElement("dialog");
+    lb.className = "lb";
+    lb.innerHTML = '<figure><img alt=""><figcaption></figcaption></figure>' +
+      '<button class="lbx" type="button" data-a="close" aria-label="Fechar">✕</button>' +
+      '<button class="lbn prev" type="button" data-a="prev" aria-label="Foto anterior">‹</button>' +
+      '<button class="lbn next" type="button" data-a="next" aria-label="Próxima foto">›</button>';
+    document.body.appendChild(lb);
+    var lbImg = $("img", lb), lbCap = $("figcaption", lb), cur = 0;
+    function show(i) {
+      cur = (i + order.length) % order.length;
+      lbImg.src = order[cur].src; lbImg.alt = order[cur].alt || ""; lbCap.textContent = order[cur].alt || "";
+    }
+    function openLb(i) { show(i); if (lb.showModal) lb.showModal(); else lb.setAttribute("open", ""); }
+    lb.addEventListener("click", function (e) {
+      var a = e.target.dataset && e.target.dataset.a;
+      if (a === "close" || e.target === lb) lb.close();
+      else if (a === "prev") show(cur - 1);
+      else if (a === "next") show(cur + 1);
+    });
+    lb.addEventListener("keydown", function (e) { if (e.key === "ArrowLeft") show(cur - 1); if (e.key === "ArrowRight") show(cur + 1); });
+    var sx = 0;
+    lb.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener("touchend", function (e) {
+      var dx = e.changedTouches[0].clientX - sx;
+      if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+
+    function makeTile(item, ratio, dup) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "tile"; b.style.aspectRatio = ratio;
+      b.setAttribute("aria-label", "Ampliar: " + (item.alt || "foto"));
+      if (item.fit) b.dataset.fit = item.fit;
+      if (dup) { b.tabIndex = -1; b.setAttribute("aria-hidden", "true"); }
+      var im = new Image();
+      im.src = item.src; im.alt = item.alt || ""; im.loading = "lazy"; im.decoding = "async"; im.draggable = false;
+      im.addEventListener("error", function () { b.style.display = "none"; }); // foto que não carrega some
+      b.appendChild(im);
+      b.addEventListener("click", function () { openLb(order.indexOf(item)); });
+      return b;
+    }
+    function makeRow(items, rev) {
+      var seq = [];
+      while (seq.length < 8) seq = seq.concat(items);
+      var rs = seq.map(function () { return ratios[Math.floor(Math.random() * ratios.length)]; });
+      var row = document.createElement("div"), lane = document.createElement("div");
+      row.className = "row" + (rev ? " rev" : ""); lane.className = "lane";
+      lane.style.setProperty("--dur", seq.length * 7 + "s");
+      [false, true].forEach(function (dup) { seq.forEach(function (it, i) { lane.appendChild(makeTile(it, rs[i], dup)); }); });
+      row.appendChild(lane); reel.appendChild(row);
+    }
+    makeRow(shuffle(list), false);
+    makeRow(shuffle(list), true);
+    reel.addEventListener("touchstart", function () { reel.classList.add("touch"); }, { passive: true });
+    reel.addEventListener("touchend", function () { setTimeout(function () { reel.classList.remove("touch"); }, 1500); }, { passive: true });
+    new IntersectionObserver(function (es) { reel.classList.toggle("off", !es[0].isIntersecting); }).observe(reel);
+  }
+
+  /* 14. "Conte seu objetivo": monta a mensagem e abre o WhatsApp (nada é salvo) */
+  var gf = $("#goalform");
+  if (gf) gf.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var f = new FormData(gf), nome = String(f.get("nome") || "").trim();
+    var msg = "Olá, vim pelo site" + (nome ? ", meu nome é " + nome : "") + ". Meu objetivo é " + f.get("obj") +
+      " e minha experiência com treino: " + f.get("exp") + ". Gostaria de agendar minha avaliação.";
+    window.open("https://api.whatsapp.com/send?phone=" + WHATSAPP + "&text=" + encodeURIComponent(msg), "_blank", "noopener");
+  });
+
+  /* 15. Menu mostra em qual seção você está */
+  var links = $$('.menu a[href^="#"]'), byId = {};
+  links.forEach(function (a) { byId[a.getAttribute("href").slice(1)] = a; });
+  var spy = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      links.forEach(function (l) { l.removeAttribute("aria-current"); }); // seções fora do menu apagam a marca
+      var a = byId[e.target.id];
+      if (a) a.setAttribute("aria-current", "true");
+    });
+  }, { rootMargin: "-45% 0px -50% 0px" });
+  $$("main section[id]").forEach(function (sec) { spy.observe(sec); });
 })();
