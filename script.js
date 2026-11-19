@@ -1,4 +1,4 @@
-/* TEAM LOBO v6 — interações (JavaScript puro, sem dependências) */
+/* TEAM LOBO v7 — interações (JavaScript puro, sem dependências) */
 (function () {
   "use strict";
   // WhatsApp de atendimento (o mesmo do seu script anterior). Troque aqui, se precisar.
@@ -237,4 +237,78 @@
     });
   }, { rootMargin: "-45% 0px -50% 0px" });
   $$("main section[id]").forEach(function (sec) { spy.observe(sec); });
+
+  /* 16. Antes e depois: só mostra itens com autorizado: true (use ?demo no endereço para ver um exemplo) */
+  var baRail = $("[data-ba]"), baSec = $("#transformacoes");
+  if (baRail) {
+    var pares = (window.ANTES_DEPOIS || []).filter(function (x) { return x && x.autorizado === true && x.antes && x.depois; });
+    if (!pares.length && /[?&]demo\b/.test(location.search)) {
+      pares = [{ antes: "assets/galeria/lobo.webp", depois: "assets/galeria/lobo.webp", filtroAntes: "grayscale(1) brightness(.5) blur(1.5px)",
+                 fit: "contain", nome: "Exemplo de como fica", detalhe: "Troque pelas fotos reais no config.js" }];
+    }
+    if (!pares.length) baSec.hidden = true;
+    pares.forEach(function (it) {
+      var fig = document.createElement("figure");
+      fig.className = "ba card"; fig.style.setProperty("--pos", "50%");
+      fig.innerHTML = '<div class="ba-stage"><img alt="Depois"><img class="ba-before" alt="Antes"><span class="ba-tag l">Antes</span><span class="ba-tag r">Depois</span>' +
+        '<span class="ba-line"><i aria-hidden="true">↔</i></span><input type="range" min="0" max="100" value="50" aria-label="Arraste para comparar antes e depois"></div><figcaption></figcaption>';
+      var stage = $(".ba-stage", fig), imgs = $$("img", fig), rg = $("input", fig), cap = $("figcaption", fig);
+      imgs[0].src = it.depois; imgs[1].src = it.antes;
+      if (it.filtroAntes) imgs[1].style.filter = it.filtroAntes;
+      if (it.fit) stage.dataset.fit = it.fit;
+      if (it.nome) { var b = document.createElement("b"); b.textContent = it.nome; cap.appendChild(b); }
+      if (it.detalhe) cap.appendChild(document.createTextNode(it.detalhe));
+      if (!it.nome && !it.detalhe) cap.remove();
+      imgs.forEach(function (im) { im.addEventListener("error", function () { fig.remove(); if (!baRail.children.length) baSec.hidden = true; }); });
+      var raf = 0, stopped = false;
+      function setPos(v) { fig.style.setProperty("--pos", v + "%"); rg.value = v; }
+      rg.addEventListener("input", function () { stopped = true; cancelAnimationFrame(raf); fig.style.setProperty("--pos", rg.value + "%"); });
+      rg.addEventListener("pointerdown", function () { stopped = true; cancelAnimationFrame(raf); });
+      // ao aparecer na tela, o controle balança uma vez para mostrar que dá para arrastar
+      new IntersectionObserver(function (es, o) {
+        if (!es[0].isIntersecting) return; o.disconnect();
+        if (reduce) return;
+        var t0 = performance.now();
+        (function step(t) {
+          if (stopped) return;
+          var p = Math.min((t - t0) / 1800, 1);
+          setPos((50 + Math.sin(p * Math.PI * 2) * 22).toFixed(1));
+          if (p < 1) raf = requestAnimationFrame(step); else setPos(50);
+        })(t0);
+      }, { threshold: 0.6 }).observe(fig);
+      baRail.appendChild(fig);
+    });
+  }
+
+  /* 17. Vídeo no topo (liga e desliga em config.js; se falhar, o logo continua no lugar) */
+  var V = (window.SITE || {}).videoHero, vbox = $(".plate .logo");
+  var saver = navigator.connection && navigator.connection.saveData;
+  if (V && V.ativo && V.src && vbox && !saver) {
+    var plate = vbox.parentNode, vid = document.createElement("video"), manual = false;
+    vid.muted = true; vid.defaultMuted = true; vid.loop = true; vid.playsInline = true;
+    vid.preload = reduce ? "auto" : "metadata";
+    vid.setAttribute("aria-label", V.descricao || "Vídeo da Team Lobo");
+    if (V.poster) vid.poster = V.poster;
+    vid.src = V.src;
+    plate.classList.add("has-video");
+    if (V.aspecto) plate.style.setProperty("--va", V.aspecto);
+    vbox.appendChild(vid);
+    var ctl = document.createElement("div"), pb = document.createElement("button");
+    ctl.className = "vctl"; pb.type = "button";
+    function label() { var on = !vid.paused; pb.textContent = on ? "❚❚" : "▶"; pb.setAttribute("aria-label", on ? "Pausar vídeo" : "Reproduzir vídeo"); }
+    pb.addEventListener("click", function () { if (vid.paused) { manual = false; vid.play().catch(function () {}); } else { manual = true; vid.pause(); } });
+    ["play", "pause"].forEach(function (ev) { vid.addEventListener(ev, label); });
+    ctl.appendChild(pb);
+    if (V.comSom) {
+      var mb = document.createElement("button"); mb.type = "button";
+      var lm = function () { mb.textContent = vid.muted ? "🔇" : "🔊"; mb.setAttribute("aria-label", vid.muted ? "Ligar o som" : "Desligar o som"); };
+      mb.addEventListener("click", function () { vid.muted = !vid.muted; lm(); }); lm(); ctl.appendChild(mb);
+    }
+    vbox.appendChild(ctl); label();
+    vid.addEventListener("loadeddata", function () { vbox.classList.add("playing"); });
+    vid.addEventListener("error", function () { vid.remove(); ctl.remove(); plate.classList.remove("has-video"); vbox.classList.remove("playing"); });
+    if (!reduce) new IntersectionObserver(function (es) {
+      if (es[0].isIntersecting && !manual) vid.play().catch(function () {}); else vid.pause();
+    }, { threshold: 0.25 }).observe(vbox);
+  }
 })();
