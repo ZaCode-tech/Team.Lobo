@@ -1,4 +1,4 @@
-/* TEAM LOBO v9 — interações (JavaScript puro, sem dependências) */
+/* TEAM LOBO v10 — interações (60% Preto Carvão | 30% Prata Cromado | 10% Dourado Metalizado) */
 (function () {
   "use strict";
   var WHATSAPP = "5521982814880";
@@ -88,8 +88,8 @@
     });
   }
 
-  /* 8. Letras cromadas */
-  $$(".chrome").forEach(function (el, i) { el.style.setProperty("--n", i % 5); });
+  /* 8. Reflexos metálicos defasados (Prata e Ouro) */
+  $$(".chrome, .gold").forEach(function (el, i) { el.style.setProperty("--n", i % 5); });
 
   /* 9. Fotos da equipe */
   if (!(window.CSS && CSS.supports("animation-timeline: view()")) || reduce) {
@@ -340,7 +340,7 @@
     }, { threshold: 0.25 }).observe(vbox);
   }
 
-  /* 18. Interação 3D no card principal do Hero (mouse e toque no celular) */
+  /* 18. Interação 3D no card principal do Hero */
   var plateEl = $(".plate"), logoBox = $(".plate .logo");
   if (!reduce && plateEl && logoBox) {
     function tiltPlate(clientX, clientY) {
@@ -371,7 +371,7 @@
     plateEl.addEventListener("touchend", resetPlate, { passive: true });
   }
 
-  /* 19. Slides interativos no card 3D do Hero + Partículas metálicas */
+  /* 19. Slides interativos no card 3D do Hero + Partículas Prata Cromado (75%) e Dourado Metalizado (25%) */
   var slides = ((window.SITE || {}).heroSlides || []).slice();
   var hImg = $("#hero-slide-img"), hTag = $("#hero-hud-tag"), hDots = $("#hero-hud-dots");
   if (slides.length && hImg && hDots && !((window.SITE || {}).videoHero || {}).ativo) {
@@ -410,14 +410,15 @@
     }
     resizeC();
     addEventListener("resize", resizeC, { passive: true });
-    for (var p = 0; p < 34; p++) {
+    for (var p = 0; p < 38; p++) {
       pts.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        r: Math.random() * 2 + 0.7,
+        r: Math.random() * 2.1 + 0.7,
         vx: (Math.random() - 0.5) * 0.35,
         vy: -Math.random() * 0.45 - 0.15,
-        a: Math.random() * 0.5 + 0.2
+        a: Math.random() * 0.55 + 0.25,
+        isGold: p % 4 === 0
       });
     }
     (function drawPts() {
@@ -430,7 +431,11 @@
         if (pt.x > canvas.width + 10) pt.x = -10;
         ctx.beginPath();
         ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
-        ctx.fillStyle = isLight ? "rgba(10,12,15," + pt.a + ")" : "rgba(226,231,238," + pt.a + ")";
+        if (pt.isGold) {
+          ctx.fillStyle = "rgba(212,175,55," + Math.min(1, pt.a + 0.15) + ")";
+        } else {
+          ctx.fillStyle = isLight ? "rgba(18,22,28," + pt.a + ")" : "rgba(224,230,238," + pt.a + ")";
+        }
         ctx.fill();
       });
       requestAnimationFrame(drawPts);
