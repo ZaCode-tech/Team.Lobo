@@ -1,46 +1,59 @@
-/* TEAM LOBO v7 — interações (JavaScript puro, sem dependências) */
+/* TEAM LOBO v11 — GSAP + ScrollTrigger, Cards 3D, Campo dos Alunos e Pílula Inteligente */
 (function () {
   "use strict";
-  // WhatsApp de atendimento (o mesmo do seu script anterior). Troque aqui, se precisar.
   var WHATSAPP = "5521982814880";
   var root = document.documentElement;
   var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  root.dataset.ready = "1"; // avisa o HTML que o script carregou (senão o conteúdo é liberado sozinho)
+  root.dataset.ready = "1";
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
 
-  /* 1. Links de WhatsApp com mensagem pronta */
+  function waUrl(text) {
+    return "https://api.whatsapp.com/send?phone=" + WHATSAPP + "&text=" + encodeURIComponent(text);
+  }
+
+  /* 1. Links de WhatsApp */
   $$("[data-wa]").forEach(function (a) {
-    a.href = "https://api.whatsapp.com/send?phone=" + WHATSAPP + "&text=" + encodeURIComponent(a.dataset.wa);
-    a.target = "_blank"; a.rel = "noopener noreferrer";
+    a.href = waUrl(a.dataset.wa);
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
   });
 
-  /* 2. Tema claro/escuro (lembra a escolha; revelação circular quando o navegador permite) */
+  /* 2. Tema Claro / Escuro */
   var themeBtn = $(".theme");
+  var metaTheme = $('meta[name="theme-color"]');
   function applyTheme(t) {
     root.dataset.theme = t;
     try { localStorage.setItem("tl-theme", t); } catch (e) {}
-    themeBtn.setAttribute("aria-label", t === "dark" ? "Mudar para o modo claro" : "Mudar para o modo escuro");
+    if (themeBtn) themeBtn.setAttribute("aria-label", t === "dark" ? "Mudar para o modo claro" : "Mudar para o modo escuro");
+    if (metaTheme) metaTheme.setAttribute("content", t === "dark" ? "#0B0C0E" : "#F2F3F5");
   }
   applyTheme(root.dataset.theme || "dark");
-  themeBtn.addEventListener("click", function (e) {
-    var next = root.dataset.theme === "dark" ? "light" : "dark";
-    if (!document.startViewTransition || reduce) return applyTheme(next);
-    var x = e.clientX, y = e.clientY, r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-    document.startViewTransition(function () { applyTheme(next); }).ready.then(function () {
-      root.animate({ clipPath: ["circle(0 at " + x + "px " + y + "px)", "circle(" + r + "px at " + x + "px " + y + "px)"] },
-        { duration: 600, easing: "ease-in", pseudoElement: "::view-transition-new(root)" });
+  if (themeBtn) {
+    themeBtn.addEventListener("click", function (e) {
+      var next = root.dataset.theme === "dark" ? "light" : "dark";
+      if (!document.startViewTransition || reduce) return applyTheme(next);
+      var x = e.clientX, y = e.clientY;
+      var r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+      document.startViewTransition(function () { applyTheme(next); }).ready.then(function () {
+        root.animate(
+          { clipPath: ["circle(0 at " + x + "px " + y + "px)", "circle(" + r + "px at " + x + "px " + y + "px)"] },
+          { duration: 600, easing: "ease-in", pseudoElement: "::view-transition-new(root)" }
+        );
+      });
     });
-  });
+  }
 
-  /* 3. Menu do celular e linha sob o cabeçalho */
+  /* 3. Menu mobile */
   var burger = $(".burger"), menu = $(".menu"), top = $(".top");
-  burger.addEventListener("click", function () { burger.setAttribute("aria-expanded", menu.classList.toggle("open")); });
-  menu.addEventListener("click", function (e) { if (e.target.tagName === "A") { menu.classList.remove("open"); burger.setAttribute("aria-expanded", "false"); } });
-  var onScroll = function () { top.classList.toggle("sc", scrollY > 8); };
-  addEventListener("scroll", onScroll, { passive: true }); onScroll();
+  if (burger && menu) {
+    burger.addEventListener("click", function () { burger.setAttribute("aria-expanded", menu.classList.toggle("open")); });
+    menu.addEventListener("click", function (e) {
+      if (e.target.tagName === "A") { menu.classList.remove("open"); burger.setAttribute("aria-expanded", "false"); }
+    });
+  }
 
-  /* 4. Imagens com plano B: arquivo local -> site oficial -> monograma (nunca fica em branco) */
+  /* 4. Fallback de imagens */
   $$(".ph img").forEach(function (img) {
     var step = 0;
     function fail() {
@@ -51,264 +64,331 @@
     if (img.complete && img.naturalWidth === 0) fail();
   });
 
-  /* 5. Revelação ao rolar e contadores */
+  /* 5. Revelação ao rolar & Contadores (+2.4K) */
   var io = new IntersectionObserver(function (es) {
     es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
-  }, { threshold: 0.12, rootMargin: "0px 0px -5% 0px" });
+  }, { threshold: 0.14, rootMargin: "0px 0px -4% 0px" });
   $$(".rv").forEach(function (el) { io.observe(el); });
+
   function count(el) {
-    var end = +el.dataset.count, pre = el.dataset.prefix || "", t0 = performance.now();
-    if (reduce) { el.textContent = pre + end; return; }
+    var end = parseFloat(el.dataset.count), dec = parseInt(el.dataset.decimals || "0", 10);
+    var pre = el.dataset.prefix || "", suf = el.dataset.suffix || "", t0 = performance.now();
+    if (reduce) { el.textContent = pre + end.toFixed(dec) + suf; return; }
     (function tick(t) {
-      var p = Math.min((t - t0) / 1400, 1);
-      el.textContent = pre + Math.round(end * (1 - Math.pow(1 - p, 3)));
+      var p = Math.min((t - t0) / 1500, 1);
+      var val = end * (1 - Math.pow(1 - p, 3));
+      el.textContent = pre + (dec ? val.toFixed(dec) : Math.round(val)) + suf;
       if (p < 1) requestAnimationFrame(tick);
     })(t0);
   }
   var co = new IntersectionObserver(function (es) {
     es.forEach(function (e) { if (e.isIntersecting) { count(e.target); co.unobserve(e.target); } });
-  }, { threshold: 0.6 });
+  }, { threshold: 0.5 });
   $$("[data-count]").forEach(function (el) { co.observe(el); });
 
-  /* 6. Filtro dos relatos */
-  $$(".fbtn").forEach(function (b) {
-    b.addEventListener("click", function () {
-      $$(".fbtn").forEach(function (x) { x.setAttribute("aria-pressed", x === b); });
-      $$(".story").forEach(function (s) { s.hidden = b.dataset.f !== "todos" && s.dataset.k !== b.dataset.f; });
-    });
-  });
-
-  /* 7. Botões principais "puxam" o cursor (só com mouse) */
+  /* 6. Botões Magnéticos */
   if (!reduce && matchMedia("(pointer: fine)").matches) {
     $$(".mag").forEach(function (b) {
       b.addEventListener("pointermove", function (e) {
         var r = b.getBoundingClientRect();
-        b.style.transform = "translate(" + (e.clientX - r.left - r.width / 2) * 0.18 + "px," + (e.clientY - r.top - r.height / 2) * 0.28 + "px)";
+        b.style.transform = "translate(" + (e.clientX - r.left - r.width / 2) * 0.18 + "px," + (e.clientY - r.top - r.height / 2) * 0.26 + "px)";
       });
       b.addEventListener("pointerleave", function () { b.style.transform = ""; });
     });
   }
 
-  /* 8. Letras cromadas: cada uma começa o brilho em um ponto diferente */
-  $$(".chrome").forEach(function (el, i) { el.style.setProperty("--n", i % 5); });
-
-  /* 9. Fotos da equipe: preto e branco; ganham cor ao parar na frente delas.
-        Navegadores com animação por rolagem usam o CSS; os demais usam este observador. */
-  if (!(window.CSS && CSS.supports("animation-timeline: view()")) || reduce) {
-    var fo = new IntersectionObserver(function (es) {
-      es.forEach(function (e) { e.target.classList.toggle("focus", e.isIntersecting); });
-    }, { rootMargin: "-42% 0px -42% 0px" });
-    $$(".person").forEach(function (p) { fo.observe(p); });
-  }
-
-  /* 10. Barra de supino (progresso) e faixa que acelera com a rolagem */
-  var barbell = $(".barbell"), track = $(".track"), anim = null, rate = 1, lastY = scrollY, ticking = false;
-  function progress() {
-    var h = root.scrollHeight - innerHeight;
-    barbell.style.setProperty("--p", h > 0 ? Math.min(1, scrollY / h).toFixed(4) : 0);
-    ticking = false;
-  }
-  addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(progress); } }, { passive: true });
-  progress();
-  if (!reduce && track) {
-    (function loop() {
-      var dy = Math.abs(scrollY - lastY); lastY = scrollY;
-      rate += ((1 + Math.min(dy * 0.25, 8)) - rate) * 0.12;
-      if (!anim && track.getAnimations) anim = track.getAnimations()[0];
-      if (anim) anim.playbackRate = rate;
-      requestAnimationFrame(loop);
-    })();
-  }
-
-  /* 11. Cortina de entrada (uma vez por visita) */
-  var intro = $(".intro");
-  if (intro) {
-    var seen = false;
-    try { seen = sessionStorage.getItem("tl-intro"); sessionStorage.setItem("tl-intro", "1"); } catch (e) {}
-    if (seen || reduce) intro.remove(); else setTimeout(function () { intro.remove(); }, 2700);
-  }
-
-  /* 12. Só com mouse: brilho no topo e cartões que inclinam com reflexo */
-  if (!reduce && matchMedia("(pointer: fine)").matches) {
-    var hero = $(".hero");
-    hero.addEventListener("pointermove", function (e) {
-      var r = hero.getBoundingClientRect();
-      hero.style.setProperty("--mx", (e.clientX - r.left) + "px"); hero.style.setProperty("--my", (e.clientY - r.top) + "px");
+  /* 7. Cards 3D Interativos (3D Tilt + Reflexo Especular Prateado/Vermelho) */
+  function attachTilt(el) {
+    if (reduce) return;
+    el.addEventListener("pointermove", function (e) {
+      var r = el.getBoundingClientRect();
+      var x = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      var y = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
+      el.style.transform = "perspective(1000px) rotateX(" + ((0.5 - y) * 6).toFixed(2) + "deg) rotateY(" + ((x - 0.5) * 7).toFixed(2) + "deg)";
+      el.style.setProperty("--gx", (x * 100).toFixed(1) + "%");
+      el.style.setProperty("--gy", (y * 100).toFixed(1) + "%");
     });
-    $$(".card").forEach(function (c) {
-      c.classList.add("tilt");
-      c.addEventListener("pointermove", function (e) {
-        var r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-        c.style.transform = "perspective(900px) rotateX(" + ((0.5 - y) * 5).toFixed(2) + "deg) rotateY(" + ((x - 0.5) * 6).toFixed(2) + "deg)";
-        c.style.setProperty("--gx", x * 100 + "%"); c.style.setProperty("--gy", y * 100 + "%");
-      });
-      c.addEventListener("pointerleave", function () { c.style.transform = ""; });
-    });
+    el.addEventListener("pointerleave", function () { el.style.transform = ""; });
   }
+  $$(".tilt").forEach(attachTilt);
 
-  /* 13. Galeria: fotos em ordem aleatória, passando sozinhas (duas faixas em sentidos opostos) */
-  var reel = $("[data-reel]"), list = (window.GALERIA || []).slice();
-  if (reel && !list.length) { var gsec = $("#galeria"); if (gsec) gsec.hidden = true; }
-  else if (reel) {
-    var shuffle = function (a) {
-      a = a.slice();
-      for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; }
-      return a;
-    };
-    var ratios = ["3/4", "1/1", "4/3", "4/5"];
-    var order = shuffle(list); // ordem usada no visualizador
+  /* 8. Modal Lightbox Compartilhado (Alunos + Galeria) */
+  var lb = document.createElement("dialog");
+  lb.className = "lb";
+  lb.innerHTML = '<figure><img alt=""><figcaption></figcaption></figure>' +
+    '<button class="lbx" type="button" data-a="close" aria-label="Fechar">✕</button>' +
+    '<button class="lbn prev" type="button" data-a="prev" aria-label="Anterior">‹</button>' +
+    '<button class="lbn next" type="button" data-a="next" aria-label="Próxima">›</button>';
+  document.body.appendChild(lb);
+  var lbImg = $("img", lb), lbCap = $("figcaption", lb), lbItems = [], lbIdx = 0;
 
-    var lb = document.createElement("dialog");
-    lb.className = "lb";
-    lb.innerHTML = '<figure><img alt=""><figcaption></figcaption></figure>' +
-      '<button class="lbx" type="button" data-a="close" aria-label="Fechar">✕</button>' +
-      '<button class="lbn prev" type="button" data-a="prev" aria-label="Foto anterior">‹</button>' +
-      '<button class="lbn next" type="button" data-a="next" aria-label="Próxima foto">›</button>';
-    document.body.appendChild(lb);
-    var lbImg = $("img", lb), lbCap = $("figcaption", lb), cur = 0;
-    function show(i) {
-      cur = (i + order.length) % order.length;
-      lbImg.src = order[cur].src; lbImg.alt = order[cur].alt || ""; lbCap.textContent = order[cur].alt || "";
-    }
-    function openLb(i) { show(i); if (lb.showModal) lb.showModal(); else lb.setAttribute("open", ""); }
-    lb.addEventListener("click", function (e) {
-      var a = e.target.dataset && e.target.dataset.a;
-      if (a === "close" || e.target === lb) lb.close();
-      else if (a === "prev") show(cur - 1);
-      else if (a === "next") show(cur + 1);
-    });
-    lb.addEventListener("keydown", function (e) { if (e.key === "ArrowLeft") show(cur - 1); if (e.key === "ArrowRight") show(cur + 1); });
-    var sx = 0;
-    lb.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; }, { passive: true });
-    lb.addEventListener("touchend", function (e) {
-      var dx = e.changedTouches[0].clientX - sx;
-      if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
-    }, { passive: true });
-
-    function makeTile(item, ratio, dup) {
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "tile"; b.style.aspectRatio = ratio;
-      b.setAttribute("aria-label", "Ampliar: " + (item.alt || "foto"));
-      if (item.fit) b.dataset.fit = item.fit;
-      if (dup) { b.tabIndex = -1; b.setAttribute("aria-hidden", "true"); }
-      var im = new Image();
-      im.src = item.src; im.alt = item.alt || ""; im.loading = "lazy"; im.decoding = "async"; im.draggable = false;
-      im.addEventListener("error", function () { b.style.display = "none"; }); // foto que não carrega some
-      b.appendChild(im);
-      b.addEventListener("click", function () { openLb(order.indexOf(item)); });
-      return b;
-    }
-    function makeRow(items, rev) {
-      var seq = [];
-      while (seq.length < 8) seq = seq.concat(items);
-      var rs = seq.map(function () { return ratios[Math.floor(Math.random() * ratios.length)]; });
-      var row = document.createElement("div"), lane = document.createElement("div");
-      row.className = "row" + (rev ? " rev" : ""); lane.className = "lane";
-      lane.style.setProperty("--dur", seq.length * 7 + "s");
-      [false, true].forEach(function (dup) { seq.forEach(function (it, i) { lane.appendChild(makeTile(it, rs[i], dup)); }); });
-      row.appendChild(lane); reel.appendChild(row);
-    }
-    makeRow(shuffle(list), false);
-    makeRow(shuffle(list), true);
-    reel.addEventListener("touchstart", function () { reel.classList.add("touch"); }, { passive: true });
-    reel.addEventListener("touchend", function () { setTimeout(function () { reel.classList.remove("touch"); }, 1500); }, { passive: true });
-    new IntersectionObserver(function (es) { reel.classList.toggle("off", !es[0].isIntersecting); }).observe(reel);
+  function showLb(i) {
+    if (!lbItems.length) return;
+    lbIdx = (i + lbItems.length) % lbItems.length;
+    var it = lbItems[lbIdx];
+    lbImg.src = it.src;
+    lbImg.alt = it.alt || it.title || "";
+    lbCap.textContent = it.alt || it.title || "";
   }
-
-  /* 14. "Conte seu objetivo": monta a mensagem e abre o WhatsApp (nada é salvo) */
-  var gf = $("#goalform");
-  if (gf) gf.addEventListener("submit", function (e) {
-    e.preventDefault();
-    var f = new FormData(gf), nome = String(f.get("nome") || "").trim();
-    var msg = "Olá, vim pelo site" + (nome ? ", meu nome é " + nome : "") + ". Meu objetivo é " + f.get("obj") +
-      " e minha experiência com treino: " + f.get("exp") + ". Gostaria de agendar minha avaliação.";
-    window.open("https://api.whatsapp.com/send?phone=" + WHATSAPP + "&text=" + encodeURIComponent(msg), "_blank", "noopener");
+  function openLb(items, index) {
+    lbItems = items;
+    showLb(index);
+    if (lb.showModal) lb.showModal(); else lb.setAttribute("open", "");
+  }
+  lb.addEventListener("click", function (e) {
+    var a = e.target.dataset && e.target.dataset.a;
+    if (a === "close" || e.target === lb) lb.close();
+    else if (a === "prev") showLb(lbIdx - 1);
+    else if (a === "next") showLb(lbIdx + 1);
+  });
+  lb.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowLeft") showLb(lbIdx - 1);
+    if (e.key === "ArrowRight") showLb(lbIdx + 1);
   });
 
-  /* 15. Menu mostra em qual seção você está */
+  /* 9. Campo dos Alunos: Animação contínua com peso maior para Competidores */
+  var stream = $("#student-stream"), streamWrap = $("#student-stream-wrap");
+  var alunos = (window.ALUNOS_DESTAQUE || []).slice();
+  function renderStudentStream(cat) {
+    if (!stream || !alunos.length) return;
+    var filtered = cat === "todos" ? alunos : alunos.filter(function (a) { return a.tier === cat; });
+    stream.innerHTML = "";
+    var loopList = filtered.concat(filtered);
+    loopList.forEach(function (item, idx) {
+      var card = document.createElement("button");
+      card.type = "button";
+      card.className = "st-card " + (item.tier || "");
+      card.setAttribute("aria-label", item.title || "Ver evolução de aluno");
+      if (idx >= filtered.length) { card.tabIndex = -1; card.setAttribute("aria-hidden", "true"); }
+      card.innerHTML = '<img src="' + item.src + '" alt="' + (item.title || "") + '" loading="lazy" decoding="async">' +
+        '<div class="st-overlay"><span class="st-badge">' + (item.badge || "Team Lobo") + '</span><span class="st-title">' + (item.title || "") + '</span></div>';
+      card.addEventListener("click", function () { openLb(filtered, idx % filtered.length); });
+      stream.appendChild(card);
+    });
+  }
+  if (stream) {
+    renderStudentStream("todos");
+    $$("#student-filters .fbtn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        $$("#student-filters .fbtn").forEach(function (b) { b.setAttribute("aria-pressed", b === btn); });
+        renderStudentStream(btn.dataset.st);
+      });
+    });
+    if (streamWrap) {
+      streamWrap.addEventListener("touchstart", function () { streamWrap.classList.add("paused"); }, { passive: true });
+      streamWrap.addEventListener("touchend", function () { setTimeout(function () { streamWrap.classList.remove("paused"); }, 1800); }, { passive: true });
+    }
+  }
+
+  /* 10. Pilares Expansíveis 3D */
+  $$("[data-expandable]").forEach(function (card) {
+    function toggle() {
+      var open = card.getAttribute("aria-expanded") === "true";
+      card.setAttribute("aria-expanded", String(!open));
+      var badge = $(".pillar-toggle", card);
+      if (badge) badge.textContent = !open ? "− Fechar" : "+ Detalhes";
+    }
+    card.addEventListener("click", toggle);
+    card.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+  });
+
+  /* 11. Filtro dos relatos */
+  $$("#resultados .fbtn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      $$("#resultados .fbtn").forEach(function (x) { x.setAttribute("aria-pressed", x === b); });
+      $$(".story").forEach(function (s) { s.hidden = b.dataset.f !== "todos" && s.dataset.k !== b.dataset.f; });
+    });
+  });
+
+  /* 12. Galeria de Evolução & Resultados (Grid Interativo + Filtros) */
+  var galGrid = $("#gal-grid"), galList = (window.GALERIA || []).slice();
+  function renderGallery(cat) {
+    if (!galGrid) return;
+    var items = cat === "todos" ? galList : galList.filter(function (g) { return g.cat === cat; });
+    galGrid.innerHTML = "";
+    items.forEach(function (it, i) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "gal-item tilt";
+      if (it.fit) btn.dataset.fit = it.fit;
+      btn.setAttribute("aria-label", "Ampliar: " + (it.alt || "foto"));
+      btn.innerHTML = '<img src="' + it.src + '" alt="' + (it.alt || "") + '" loading="lazy" decoding="async"><span class="gal-cap">' + (it.alt || "") + '</span>';
+      btn.addEventListener("click", function () { openLb(items, i); });
+      attachTilt(btn);
+      galGrid.appendChild(btn);
+    });
+  }
+  if (galGrid && galList.length) {
+    renderGallery("todos");
+    $$("#gal-filters .fbtn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        $$("#gal-filters .fbtn").forEach(function (b) { b.setAttribute("aria-pressed", b === btn); });
+        renderGallery(btn.dataset.cat);
+      });
+    });
+  }
+
+  /* 13. Slides Interativos do Sid Lobo no Card 3D do Hero */
+  var slides = ((window.SITE || {}).heroSlides || []).slice();
+  var hImg = $("#hero-slide-img"), hTag = $("#hero-hud-tag"), hDots = $("#hero-hud-dots");
+  if (slides.length && hImg && hDots && !((window.SITE || {}).videoHero || {}).ativo) {
+    var sIdx = 0, sTimer = null;
+    function setSlide(i) {
+      sIdx = (i + slides.length) % slides.length;
+      hImg.style.opacity = "0.25";
+      setTimeout(function () {
+        hImg.src = slides[sIdx].src;
+        hTag.textContent = slides[sIdx].tag;
+        hImg.style.opacity = "1";
+      }, 160);
+      $$("button", hDots).forEach(function (d, k) { d.setAttribute("aria-selected", k === sIdx ? "true" : "false"); });
+    }
+    slides.forEach(function (_, i) {
+      var dot = document.createElement("button");
+      dot.type = "button";
+      dot.setAttribute("aria-label", "Foto " + (i + 1));
+      dot.setAttribute("aria-selected", i === 0 ? "true" : "false");
+      dot.addEventListener("click", function (e) { e.stopPropagation(); setSlide(i); resetAuto(); });
+      hDots.appendChild(dot);
+    });
+    function resetAuto() {
+      clearInterval(sTimer);
+      if (!reduce) sTimer = setInterval(function () { setSlide(sIdx + 1); }, 4200);
+    }
+    resetAuto();
+  }
+
+  /* 14. Interação 3D no Card Principal do Hero */
+  var plateEl = $("#hero-plate"), logoBox = $("#hero-stage");
+  if (!reduce && plateEl && logoBox) {
+    plateEl.addEventListener("pointermove", function (e) {
+      if (e.pointerType !== "mouse") return;
+      var r = plateEl.getBoundingClientRect();
+      var x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      logoBox.style.transform = "rotateX(" + ((0.5 - y) * 12).toFixed(2) + "deg) rotateY(" + ((x - 0.5) * 14).toFixed(2) + "deg)";
+    });
+    plateEl.addEventListener("pointerleave", function () { logoBox.style.transform = ""; });
+  }
+
+  /* 15. Barra de progresso & Pílula Flutuante Inteligente de WhatsApp */
+  var barbell = $(".barbell"), waPill = $("#wa-pill"), waLabel = $("#wa-label"), ticking = false;
+  function onScrollFrame() {
+    if (top) top.classList.toggle("sc", scrollY > 8);
+    if (barbell) {
+      var h = root.scrollHeight - innerHeight;
+      barbell.style.setProperty("--p", h > 0 ? Math.min(1, scrollY / h).toFixed(4) : 0);
+    }
+    ticking = false;
+  }
+  addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(onScrollFrame); } }, { passive: true });
+  onScrollFrame();
+
+  var waContexts = {
+    topo: { label: "Tirar dúvidas com Sid Lobo", msg: "Olá, vim pelo site e gostaria de tirar dúvidas com Sid Lobo." },
+    autoridade: { label: "Conhecer o método →", msg: "Olá, vim pelo site e quero conhecer a consultoria da Team Lobo." },
+    alunos: { label: "Quero competir ou evoluir →", msg: "Olá, vim pelo site, vi os alunos e atletas e quero começar minha evolução!" },
+    metodo: { label: "Montar meu protocolo →", msg: "Olá, vim pelo site e quero um protocolo individualizado de treino e dieta." },
+    resultados: { label: "Quero transformar meu físico →", msg: "Olá, vim pelo site, vi os relatos e quero transformar meu físico!" },
+    lideranca: { label: "Treinar com Sid Lobo →", msg: "Olá, vim pelo site e gostaria de iniciar minha consultoria com Sid Lobo." },
+    galeria: { label: "Quero esse resultado →", msg: "Olá, vim pelo site, vi a galeria de resultados e quero esse resultado para mim!" },
+    planos: { label: "Garantir minha vaga →", msg: "Olá, vim pelo site e quero escolher um plano da Team Lobo." },
+    contato: { label: "Agendar avaliação agora →", msg: "Olá, vim pelo site e gostaria de agendar minha avaliação." }
+  };
+
   var links = $$('.menu a[href^="#"]'), byId = {};
   links.forEach(function (a) { byId[a.getAttribute("href").slice(1)] = a; });
   var spy = new IntersectionObserver(function (es) {
     es.forEach(function (e) {
       if (!e.isIntersecting) return;
-      links.forEach(function (l) { l.removeAttribute("aria-current"); }); // seções fora do menu apagam a marca
-      var a = byId[e.target.id];
-      if (a) a.setAttribute("aria-current", "true");
+      var id = e.target.id;
+      links.forEach(function (l) { l.removeAttribute("aria-current"); });
+      if (byId[id]) byId[id].setAttribute("aria-current", "true");
+      if (waPill && waLabel && waContexts[id]) {
+        waLabel.textContent = waContexts[id].label;
+        waPill.href = waUrl(waContexts[id].msg);
+      }
     });
-  }, { rootMargin: "-45% 0px -50% 0px" });
+  }, { rootMargin: "-40% 0px -45% 0px" });
   $$("main section[id]").forEach(function (sec) { spy.observe(sec); });
 
-  /* 16. Antes e depois: só mostra itens com autorizado: true (use ?demo no endereço para ver um exemplo) */
-  var baRail = $("[data-ba]"), baSec = $("#transformacoes");
-  if (baRail) {
-    var pares = (window.ANTES_DEPOIS || []).filter(function (x) { return x && x.autorizado === true && x.antes && x.depois; });
-    if (!pares.length && /[?&]demo\b/.test(location.search)) {
-      pares = [{ antes: "assets/galeria/lobo.webp", depois: "assets/galeria/lobo.webp", filtroAntes: "grayscale(1) brightness(.5) blur(1.5px)",
-                 fit: "contain", nome: "Exemplo de como fica", detalhe: "Troque pelas fotos reais no config.js" }];
-    }
-    if (!pares.length) baSec.hidden = true;
-    pares.forEach(function (it) {
-      var fig = document.createElement("figure");
-      fig.className = "ba card"; fig.style.setProperty("--pos", "50%");
-      fig.innerHTML = '<div class="ba-stage"><img alt="Depois"><img class="ba-before" alt="Antes"><span class="ba-tag l">Antes</span><span class="ba-tag r">Depois</span>' +
-        '<span class="ba-line"><i aria-hidden="true">↔</i></span><input type="range" min="0" max="100" value="50" aria-label="Arraste para comparar antes e depois"></div><figcaption></figcaption>';
-      var stage = $(".ba-stage", fig), imgs = $$("img", fig), rg = $("input", fig), cap = $("figcaption", fig);
-      imgs[0].src = it.depois; imgs[1].src = it.antes;
-      if (it.filtroAntes) imgs[1].style.filter = it.filtroAntes;
-      if (it.fit) stage.dataset.fit = it.fit;
-      if (it.nome) { var b = document.createElement("b"); b.textContent = it.nome; cap.appendChild(b); }
-      if (it.detalhe) cap.appendChild(document.createTextNode(it.detalhe));
-      if (!it.nome && !it.detalhe) cap.remove();
-      imgs.forEach(function (im) { im.addEventListener("error", function () { fig.remove(); if (!baRail.children.length) baSec.hidden = true; }); });
-      var raf = 0, stopped = false;
-      function setPos(v) { fig.style.setProperty("--pos", v + "%"); rg.value = v; }
-      rg.addEventListener("input", function () { stopped = true; cancelAnimationFrame(raf); fig.style.setProperty("--pos", rg.value + "%"); });
-      rg.addEventListener("pointerdown", function () { stopped = true; cancelAnimationFrame(raf); });
-      // ao aparecer na tela, o controle balança uma vez para mostrar que dá para arrastar
-      new IntersectionObserver(function (es, o) {
-        if (!es[0].isIntersecting) return; o.disconnect();
-        if (reduce) return;
-        var t0 = performance.now();
-        (function step(t) {
-          if (stopped) return;
-          var p = Math.min((t - t0) / 1800, 1);
-          setPos((50 + Math.sin(p * Math.PI * 2) * 22).toFixed(1));
-          if (p < 1) raf = requestAnimationFrame(step); else setPos(50);
-        })(t0);
-      }, { threshold: 0.6 }).observe(fig);
-      baRail.appendChild(fig);
+  /* 16. Formulário de objetivo */
+  var gf = $("#goalform");
+  if (gf) {
+    gf.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var f = new FormData(gf), nome = String(f.get("nome") || "").trim();
+      var msg = "Olá, vim pelo site" + (nome ? ", meu nome é " + nome : "") + ". Meu objetivo é " + f.get("obj") +
+        " e minha experiência com treino: " + f.get("exp") + ". Gostaria de agendar minha avaliação.";
+      window.open(waUrl(msg), "_blank", "noopener");
     });
   }
 
-  /* 17. Vídeo no topo (liga e desliga em config.js; se falhar, o logo continua no lugar) */
-  var V = (window.SITE || {}).videoHero, vbox = $(".plate .logo");
+  /* 17. Cortina de entrada */
+  var intro = $(".intro");
+  if (intro) {
+    var seen = false;
+    try { seen = sessionStorage.getItem("tl-intro"); sessionStorage.setItem("tl-intro", "1"); } catch (e) {}
+    if (seen || reduce) intro.remove();
+    else setTimeout(function () { intro.remove(); }, 2700);
+  }
+
+  /* 18. Vídeo no topo (quando ativo em config.js) */
+  var V = (window.SITE || {}).videoHero, vbox = $("#hero-stage");
   var saver = navigator.connection && navigator.connection.saveData;
   if (V && V.ativo && V.src && vbox && !saver) {
     var plate = vbox.parentNode, vid = document.createElement("video"), manual = false;
     vid.muted = true; vid.defaultMuted = true; vid.loop = true; vid.playsInline = true;
     vid.preload = reduce ? "auto" : "metadata";
-    vid.setAttribute("aria-label", V.descricao || "Vídeo da Team Lobo");
     if (V.poster) vid.poster = V.poster;
     vid.src = V.src;
     plate.classList.add("has-video");
-    if (V.aspecto) plate.style.setProperty("--va", V.aspecto);
     vbox.appendChild(vid);
     var ctl = document.createElement("div"), pb = document.createElement("button");
     ctl.className = "vctl"; pb.type = "button";
-    function label() { var on = !vid.paused; pb.textContent = on ? "❚❚" : "▶"; pb.setAttribute("aria-label", on ? "Pausar vídeo" : "Reproduzir vídeo"); }
+    function label() { var on = !vid.paused; pb.textContent = on ? "❚❚" : "▶"; }
     pb.addEventListener("click", function () { if (vid.paused) { manual = false; vid.play().catch(function () {}); } else { manual = true; vid.pause(); } });
     ["play", "pause"].forEach(function (ev) { vid.addEventListener(ev, label); });
     ctl.appendChild(pb);
-    if (V.comSom) {
-      var mb = document.createElement("button"); mb.type = "button";
-      var lm = function () { mb.textContent = vid.muted ? "🔇" : "🔊"; mb.setAttribute("aria-label", vid.muted ? "Ligar o som" : "Desligar o som"); };
-      mb.addEventListener("click", function () { vid.muted = !vid.muted; lm(); }); lm(); ctl.appendChild(mb);
-    }
     vbox.appendChild(ctl); label();
     vid.addEventListener("loadeddata", function () { vbox.classList.add("playing"); });
-    vid.addEventListener("error", function () { vid.remove(); ctl.remove(); plate.classList.remove("has-video"); vbox.classList.remove("playing"); });
     if (!reduce) new IntersectionObserver(function (es) {
       if (es[0].isIntersecting && !manual) vid.play().catch(function () {}); else vid.pause();
     }, { threshold: 0.25 }).observe(vbox);
+  }
+
+  /* 19. Coreografia GSAP + ScrollTrigger (Staggered Hero + Parallax Lobo) */
+  if (!reduce && window.gsap) {
+    if (window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
+    var h1 = $("[data-split]");
+    if (h1) {
+      h1.innerHTML = h1.innerHTML.replace(/(<span[^>]*>)(.*?)(<\/span>)|([^<\s]+)/g, function (_, open, inner, close, word) {
+        if (word) return '<span class="w"><span>' + word + "</span></span>";
+        return open + inner.split(" ").map(function (w) { return '<span class="w"><span>' + w + "</span></span>"; }).join(" ") + close;
+      });
+      gsap.from(".hero-title .w > span", {
+        yPercent: 110,
+        opacity: 0,
+        duration: 0.85,
+        stagger: 0.06,
+        ease: "power3.out",
+        delay: 0.15
+      });
+    }
+    if (window.ScrollTrigger) {
+      gsap.to(".wolf-layer-back", {
+        y: 75,
+        rotation: 8,
+        transformOrigin: "50% 50%",
+        ease: "none",
+        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 1 }
+      });
+      gsap.to(".wolf-layer-front", {
+        y: -45,
+        scale: 1.06,
+        transformOrigin: "50% 50%",
+        ease: "none",
+        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 1 }
+      });
+    }
   }
 })();
