@@ -1,24 +1,23 @@
-/* CONFIGURAÇÕES DO SITE — edite aqui, sem mexer no resto do código. */
+/* CONFIGURAÇÕES DO SITE — Caminhos originais preservados */
 
-/* 1) VÍDEO NO TOPO (no lugar do logo).
-   Para ligar: troque ativo para true e coloque o arquivo em assets/video/ (veja o LEIA-ME.txt de lá).
-   Se estiver desligado, ou se o vídeo não carregar, o site mostra o logo normalmente. */
 window.SITE = {
+  heroSlides: [
+    { src: "assets/img/IMG-20261125-WA0057.jpg", tag: "HEAD COACH • SID LOBO" },
+    { src: "assets/img/IMG-20261125-WA0052.jpg", tag: "BICAMPEÃO ESTADUAL RJ" },
+    { src: "assets/img/IMG-20261125-WA0055.jpg", tag: "14 TÍTULOS NOS PALCOS" },
+    { src: "assets/img/IMG-20261125-WA0059.jpg", tag: "MARCA REGISTRADA INPI" }
+  ],
   videoHero: {
-    ativo: false,
-    src: "assets/video/hero.mp4",
-    poster: "assets/video/hero.jpg",   // imagem que aparece antes do vídeo carregar (opcional)
-    aspecto: "4/5",                    // "4/5" vertical, "1/1" quadrado, "16/10" horizontal
-    descricao: "Treino da Team Lobo",  // texto para leitores de tela
-    comSom: false                      // true mostra um botão para ligar o som (o vídeo sempre começa mudo)
+    ativo: false, // Mude para true para exibir o vídeo VID-20261125-WA0081.mp4 no card do topo
+    src: "assets/img/VID-20261125-WA0081.mp4",
+    poster: "assets/img/IMG-20261125-WA0057.jpg",
+    aspecto: "4/5",
+    descricao: "Treino e preparação Team Lobo",
+    comSom: true
   }
 };
 
-/* 2) ANTES E DEPOIS.
-   Só aparecem os itens com autorizado: true. Marque assim somente depois de ter a autorização escrita da pessoa.
-   Use fotos com o mesmo enquadramento e a mesma luz, uma de cada lado.
-   Para ver como fica sem fotos reais, abra o site com ?demo no final do endereço. */
 window.ANTES_DEPOIS = [
-  // { antes: "assets/antes-depois/aluno1-antes.jpg", depois: "assets/antes-depois/aluno1-depois.jpg",
+  // { antes: "assets/img/antes.jpg", depois: "assets/img/depois.jpg",
   //   nome: "Aluno Team Lobo", detalhe: "Resultado em 6 meses", autorizado: true },
 ];
