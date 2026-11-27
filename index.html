@@ -51,51 +51,31 @@ try{var s=localStorage.getItem("tl-theme");document.documentElement.dataset.them
 </header>
 
 <main id="conteudo">
-  <!-- HERO COM PARALLAX 3D, SPOTLIGHT VERMELHO/PRATA E STAGGERED REVEAL -->
-  <section class="hero" id="topo">
-    <div class="hero-bg" aria-hidden="true">
-      <img src="assets/img/IMG-20261125-WA0055.jpg" alt="" decoding="async">
-    </div>
-    <!-- Emblema Geométrico do Lobo em Camadas -->
-    <svg class="wolf-emblem" viewBox="0 0 400 400" aria-hidden="true">
-      <g class="wolf-layer-back" fill="none" stroke="currentColor" stroke-width="1.2">
-        <polygon points="200,24 345,108 345,292 200,376 55,292 55,108"/>
-        <polygon points="200,52 320,122 320,278 200,348 80,278 80,122"/>
-      </g>
-      <g class="wolf-layer-front" fill="none" stroke="currentColor" stroke-width="1.6">
-        <polygon points="118,86 154,148 106,184"/>
-        <polygon points="282,86 246,148 294,184"/>
-        <polygon points="154,148 200,132 246,148 274,218 200,316 126,218"/>
-        <polyline points="154,196 178,206 164,218"/>
-        <polyline points="246,196 222,206 236,218"/>
-        <polygon points="184,254 216,254 200,276"/>
-      </g>
-    </svg>
-    <span class="mark" aria-hidden="true">LOBO</span>
+  <!-- HERO COM VÍDEO ANÚNCIO.MP4 -->
+  <section class="hero" id="topo" style="padding-block:clamp(1.75rem,4vw,3rem) clamp(3rem,6vw,4.5rem);">
+    <div class="wrap" style="grid-template-columns:1fr;gap:1.35rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
+        <span class="tag bio-tag" style="margin-bottom:0;"><span class="pulse-dot" aria-hidden="true"></span>RIO DE JANEIRO • MARCA REGISTRADA INPI</span>
+        <span class="mono-label">BICAMPEÃO ESTADUAL RJ • +2.4K EVOLUÇÕES</span>
+      </div>
 
-    <div class="wrap">
-      <div>
-        <span class="tag bio-tag"><span class="pulse-dot" aria-hidden="true"></span>RIO DE JANEIRO • MARCA REGISTRADA INPI</span>
-        <h1 class="hero-title" data-split>TREINAMENTO COM CIÊNCIA, <span class="chrome">DISCIPLINA</span> E RESULTADO <span class="red-accent">REAL.</span></h1>
-        <p class="lead">Acompanhamento individualizado criado por Sid Lobo. Treino, nutrição esportiva e suporte contínuo para quem quer emagrecer, construir um físico estético ou subir nos palcos para competir.</p>
+      <div class="hero-video-stage" style="position:relative;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:#050607;box-shadow:0 28px 70px rgba(0,0,0,.62),0 0 42px var(--accent-glow);">
+        <video id="hero-anuncio-video" autoplay muted loop playsinline controls preload="metadata" poster="assets/img/IMG-20261125-WA0057.jpg" style="display:block;width:100%;max-height:76vh;object-fit:contain;background:#050607;">
+          <source src="anúncio.mp4" type="video/mp4">
+          <source src="assets/anúncio.mp4" type="video/mp4">
+          <source src="assets/img/anúncio.mp4" type="video/mp4">
+          Seu navegador não suporta a reprodução de vídeo.
+        </video>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1.5rem;padding-top:.35rem;">
+        <div>
+          <h1 class="hero-title" style="font-size:clamp(2.2rem,4.8vw,3.8rem);margin-bottom:.5rem;">TREINAMENTO COM CIÊNCIA, <span class="chrome">DISCIPLINA</span> E RESULTADO <span class="red-accent">REAL.</span></h1>
+          <p class="lead" style="margin-bottom:0;max-width:60ch;">Acompanhamento individualizado criado por Sid Lobo. Treino, nutrição esportiva e suporte contínuo para quem quer emagrecer, construir um físico estético ou subir nos palcos para competir.</p>
+        </div>
         <div class="cta">
           <a class="btn mag shimmer" data-wa="Olá, vim pelo site e gostaria de iniciar minha consultoria." href="#contato">INICIAR CONSULTORIA NO WHATSAPP →</a>
           <a class="link" href="#alunos">Ver evolução dos alunos</a>
-        </div>
-      </div>
-
-      <div class="plate" id="hero-plate">
-        <div class="hero-spotlight" aria-hidden="true"></div>
-        <div class="logo" id="hero-stage">
-          <img id="hero-slide-img" src="assets/img/IMG-20261125-WA0057.jpg" alt="Sid Lobo — Bicampeão Estadual e Head Coach Team Lobo" width="800" height="1000" fetchpriority="high">
-          <div class="hero-hud">
-            <span class="hud-pill" id="hero-hud-tag">HEAD COACH • SID LOBO</span>
-            <div class="hud-dots" id="hero-hud-dots" aria-label="Alternar foto do treinador"></div>
-          </div>
-        </div>
-        <div class="chips">
-          <div class="chip">Bicampeão Estadual RJ<small>14 títulos oficiais nos palcos</small></div>
-          <div class="chip">+2.4K Evoluções<small>Método científico e individual</small></div>
         </div>
       </div>
     </div>
