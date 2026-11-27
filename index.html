@@ -52,10 +52,16 @@ try{var s=localStorage.getItem("tl-theme");document.documentElement.dataset.them
 
 <main id="conteudo">
   <!-- HERO COM PARALLAX 3D, SPOTLIGHT VERMELHO/PRATA E STAGGERED REVEAL -->
-  <section class="hero" id="topo">
-   <vídeo id="Vídeo herói"classe="vídeo-herói"reprodução au
-<fonte src="assets/Anúncio.mp4"tipo="vídeo/mp4">
-</vídeo>
+ <section class="hero-cinema" aria-label="Coleção Team Lobo">
+    <div class="hero-media" aria-hidden="true">
+      <video id="heroVideo" class="hero-video" autoplay muted loop playsinline poster="assets/teamlobo.jpg">
+        <source src="assets/Anúncio.mp4" type="video/mp4">
+      </video>
+      <div class="hero-zoom-fx"></div>
+      <div class="hero-scanlines"></div>
+      <canvas id="heroParticles" class="hero-particles"></canvas>
+      <div class="hero-vignette"></div>
+    </div>
     <!-- Emblema Geométrico do Lobo em Camadas -->
     <svg class="wolf-emblem" viewBox="0 0 400 400" aria-hidden="true">
       <g class="wolf-layer-back" fill="none" stroke="currentColor" stroke-width="1.2">
