@@ -22,6 +22,70 @@ try{var s=localStorage.getItem("tl-theme");document.documentElement.dataset.them
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Archivo:wdth,wght@62..125,800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=11">
+<style>
+  /* Vídeo anúncio.mp4 como plano de fundo da Hero */
+  .hero{
+    min-height:min(88vh,860px);
+    display:flex;
+    align-items:center;
+    padding-block:clamp(3.5rem,8vw,6.2rem);
+  }
+  .hero-bg video{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center 20%;
+    opacity:.36;
+    filter:contrast(1.1) saturate(1.06);
+  }
+  [data-theme=light] .hero-bg video{
+    opacity:.2;
+  }
+  .hero-bg::after{
+    background:
+      radial-gradient(circle at 72% 38%,rgba(11,12,14,.22) 0%,rgba(11,12,14,.82) 78%),
+      linear-gradient(to bottom,rgba(11,12,14,.62) 0%,rgba(11,12,14,.35) 45%,var(--bg) 100%);
+  }
+  [data-theme=light] .hero-bg::after{
+    background:
+      radial-gradient(circle at 72% 38%,rgba(242,243,245,.45) 0%,rgba(242,243,245,.88) 78%),
+      linear-gradient(to bottom,rgba(242,243,245,.72) 0%,rgba(242,243,245,.5) 45%,var(--bg) 100%);
+  }
+  .hero .wrap{
+    grid-template-columns:1fr;
+  }
+  .hero-content{
+    max-width:780px;
+  }
+  .hero-specs{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:1.25rem 1.75rem;
+    margin-top:clamp(2.2rem,5vw,3.4rem);
+    padding-top:1.5rem;
+    border-top:1px solid var(--line);
+    max-width:720px;
+  }
+  .hero-spec strong{
+    display:block;
+    font:800 clamp(1.35rem,2.6vw,1.8rem)/1.05 var(--font-d);
+    text-transform:uppercase;
+    color:var(--text);
+    letter-spacing:.02em;
+  }
+  .hero-spec span{
+    display:block;
+    margin-top:.22rem;
+    font:600 .72rem var(--font-m);
+    letter-spacing:.11em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  @media(max-width:640px){
+    .hero{min-height:82vh}
+    .hero-specs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+</style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Como funciona o atendimento?","acceptedAnswer":{"@type":"Answer","text":"Você fala com a equipe pelo WhatsApp, de segunda a sexta, das 9h30 às 18h. Depois da avaliação, recebe treino e dieta e conta com suporte online durante o plano."}},{"@type":"Question","name":"A Team Lobo atende quem quer competir?","acceptedAnswer":{"@type":"Answer","text":"Sim. A equipe prepara atletas de fisiculturismo, com a experiência de campeonatos estaduais do Rio de Janeiro."}},{"@type":"Question","name":"Qual é a diferença entre os planos?","acceptedAnswer":{"@type":"Answer","text":"Todos incluem treino, dieta e suporte. A diferença é o tempo de acompanhamento: 1, 2 ou 12 meses. O plano anual sai por R$ 125 por mês."}}]}</script>
 </head>
 <body>
@@ -51,31 +115,40 @@ try{var s=localStorage.getItem("tl-theme");document.documentElement.dataset.them
 </header>
 
 <main id="conteudo">
-  <!-- HERO COM VÍDEO ANÚNCIO.MP4 -->
-  <section class="hero" id="topo" style="padding-block:clamp(1.75rem,4vw,3rem) clamp(3rem,6vw,4.5rem);">
-    <div class="wrap" style="grid-template-columns:1fr;gap:1.35rem;">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
-        <span class="tag bio-tag" style="margin-bottom:0;"><span class="pulse-dot" aria-hidden="true"></span>RIO DE JANEIRO • MARCA REGISTRADA INPI</span>
-        <span class="mono-label">BICAMPEÃO ESTADUAL RJ • +2.4K EVOLUÇÕES</span>
-      </div>
+  <!-- HERO COM VÍDEO ANÚNCIO.MP4 DE FUNDO -->
+  <section class="hero" id="topo">
+    <div class="hero-bg" aria-hidden="true">
+      <video autoplay muted loop playsinline preload="auto" poster="assets/img/IMG-20261125-WA0055.jpg">
+        <source src="anúncio.mp4" type="video/mp4">
+        <source src="assets/anúncio.mp4" type="video/mp4">
+        <source src="assets/img/anúncio.mp4" type="video/mp4">
+        <img src="assets/img/IMG-20261125-WA0055.jpg" alt="" decoding="async">
+      </video>
+    </div>
 
-      <div class="hero-video-stage" style="position:relative;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:#050607;box-shadow:0 28px 70px rgba(0,0,0,.62),0 0 42px var(--accent-glow);">
-        <video id="hero-anuncio-video" autoplay muted loop playsinline controls preload="metadata" poster="assets/img/IMG-20261125-WA0057.jpg" style="display:block;width:100%;max-height:76vh;object-fit:contain;background:#050607;">
-          <source src="anúncio.mp4" type="video/mp4">
-          <source src="assets/anúncio.mp4" type="video/mp4">
-          <source src="assets/img/anúncio.mp4" type="video/mp4">
-          Seu navegador não suporta a reprodução de vídeo.
-        </video>
-      </div>
-
-      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1.5rem;padding-top:.35rem;">
-        <div>
-          <h1 class="hero-title" style="font-size:clamp(2.2rem,4.8vw,3.8rem);margin-bottom:.5rem;">TREINAMENTO COM CIÊNCIA, <span class="chrome">DISCIPLINA</span> E RESULTADO <span class="red-accent">REAL.</span></h1>
-          <p class="lead" style="margin-bottom:0;max-width:60ch;">Acompanhamento individualizado criado por Sid Lobo. Treino, nutrição esportiva e suporte contínuo para quem quer emagrecer, construir um físico estético ou subir nos palcos para competir.</p>
-        </div>
+    <div class="wrap">
+      <div class="hero-content">
+        <span class="tag bio-tag"><span class="pulse-dot" aria-hidden="true"></span>RIO DE JANEIRO • MARCA REGISTRADA INPI</span>
+        <h1 class="hero-title" data-split>TREINAMENTO COM CIÊNCIA, <span class="chrome">DISCIPLINA</span> E RESULTADO <span class="red-accent">REAL.</span></h1>
+        <p class="lead">Acompanhamento individualizado criado por Sid Lobo. Treino, nutrição esportiva e suporte contínuo para quem quer emagrecer, construir um físico estético ou subir nos palcos para competir.</p>
         <div class="cta">
           <a class="btn mag shimmer" data-wa="Olá, vim pelo site e gostaria de iniciar minha consultoria." href="#contato">INICIAR CONSULTORIA NO WHATSAPP →</a>
-          <a class="link" href="#alunos">Ver evolução dos alunos</a>
+          <a class="btn ghost" href="#alunos">Ver evolução dos alunos</a>
+        </div>
+
+        <div class="hero-specs" aria-label="Destaques Team Lobo">
+          <div class="hero-spec">
+            <strong>Bicampeão RJ</strong>
+            <span>14 títulos oficiais</span>
+          </div>
+          <div class="hero-spec">
+            <strong>+2.4K Alunos</strong>
+            <span>Evoluções reais</span>
+          </div>
+          <div class="hero-spec">
+            <strong>100% Sob Medida</strong>
+            <span>Treino • Dieta • Suporte</span>
+          </div>
         </div>
       </div>
     </div>
