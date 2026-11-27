@@ -23,45 +23,65 @@ try{var s=localStorage.getItem("tl-theme");document.documentElement.dataset.them
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Archivo:wdth,wght@62..125,800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=11">
 <style>
-  /* Vídeo anúncio.mp4 como plano de fundo da Hero */
+  /* Vídeo Anúncio.mp4 como plano de fundo da Hero */
   .hero{
+    position:relative;
+    overflow:hidden;
     min-height:min(88vh,860px);
     display:flex;
     align-items:center;
-    padding-block:clamp(3.5rem,8vw,6.2rem);
+    padding-block:clamp(3.2rem,7vw,5.8rem);
+  }
+  .hero-bg{
+    position:absolute;
+    inset:0;
+    z-index:0;
+    overflow:hidden;
+    pointer-events:none;
   }
   .hero-bg video{
+    position:absolute;
+    inset:0;
     width:100%;
     height:100%;
     object-fit:cover;
-    object-position:center 20%;
-    opacity:.36;
-    filter:contrast(1.1) saturate(1.06);
+    object-position:center 22%;
+    opacity:.48;
+    filter:contrast(1.08) saturate(1.06);
   }
   [data-theme=light] .hero-bg video{
-    opacity:.2;
+    opacity:.24;
   }
   .hero-bg::after{
+    content:"";
+    position:absolute;
+    inset:0;
     background:
-      radial-gradient(circle at 72% 38%,rgba(11,12,14,.22) 0%,rgba(11,12,14,.82) 78%),
-      linear-gradient(to bottom,rgba(11,12,14,.62) 0%,rgba(11,12,14,.35) 45%,var(--bg) 100%);
+      radial-gradient(circle at 72% 38%,rgba(11,12,14,.18) 0%,rgba(11,12,14,.8) 78%),
+      linear-gradient(to bottom,rgba(11,12,14,.58) 0%,rgba(11,12,14,.32) 45%,var(--bg) 100%);
   }
   [data-theme=light] .hero-bg::after{
     background:
-      radial-gradient(circle at 72% 38%,rgba(242,243,245,.45) 0%,rgba(242,243,245,.88) 78%),
-      linear-gradient(to bottom,rgba(242,243,245,.72) 0%,rgba(242,243,245,.5) 45%,var(--bg) 100%);
+      radial-gradient(circle at 72% 38%,rgba(242,243,245,.42) 0%,rgba(242,243,245,.86) 78%),
+      linear-gradient(to bottom,rgba(242,243,245,.7) 0%,rgba(242,243,245,.48) 45%,var(--bg) 100%);
   }
   .hero .wrap{
+    position:relative;
+    z-index:2;
     grid-template-columns:1fr;
   }
   .hero-content{
     max-width:780px;
   }
+  .hero-title{
+    line-height:.98;
+    letter-spacing:-.01em;
+  }
   .hero-specs{
     display:grid;
     grid-template-columns:repeat(3,minmax(0,1fr));
     gap:1.25rem 1.75rem;
-    margin-top:clamp(2.2rem,5vw,3.4rem);
+    margin-top:clamp(2.2rem,5vw,3.2rem);
     padding-top:1.5rem;
     border-top:1px solid var(--line);
     max-width:720px;
@@ -81,6 +101,23 @@ try{var s=localStorage.getItem("tl-theme");document.documentElement.dataset.them
     text-transform:uppercase;
     color:var(--muted);
   }
+
+  /* Pílula WhatsApp: oculta enquanto o botão principal estiver visível e surge suavemente ao rolar */
+  #wa-pill,
+  #wa-pill.visible{
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(22px) scale(.94);
+    pointer-events:none;
+    transition:opacity .36s ease,transform .44s cubic-bezier(.22,1,.36,1),visibility .36s ease;
+  }
+  #wa-pill.is-shown{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0) scale(1);
+    pointer-events:auto;
+  }
+
   @media(max-width:640px){
     .hero{min-height:82vh}
     .hero-specs{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -118,21 +155,20 @@ try{var s=localStorage.getItem("tl-theme");document.documentElement.dataset.them
   <!-- HERO COM VÍDEO ANÚNCIO.MP4 DE FUNDO -->
   <section class="hero" id="topo">
     <div class="hero-bg" aria-hidden="true">
-      <video autoplay muted loop playsinline preload="auto" poster="assets/img/IMG-20261125-WA0055.jpg">
-        <source src="anúncio.mp4" type="video/mp4">
-        <source src="assets/anúncio.mp4" type="video/mp4">
+      <video id="hero-bg-video" autoplay muted loop playsinline preload="auto" poster="assets/img/IMG-20261125-WA0055.jpg">
+        <source src="assets/img/Anúncio.mp4" type="video/mp4">
+        <source src="assets/img/An%C3%BAncio.mp4" type="video/mp4">
         <source src="assets/img/anúncio.mp4" type="video/mp4">
-        <img src="assets/img/IMG-20261125-WA0055.jpg" alt="" decoding="async">
       </video>
     </div>
 
     <div class="wrap">
       <div class="hero-content">
         <span class="tag bio-tag"><span class="pulse-dot" aria-hidden="true"></span>RIO DE JANEIRO • MARCA REGISTRADA INPI</span>
-        <h1 class="hero-title" data-split>TREINAMENTO COM CIÊNCIA, <span class="chrome">DISCIPLINA</span> E RESULTADO <span class="red-accent">REAL.</span></h1>
+        <h1 class="hero-title">TREINAMENTO COM<br><span class="chrome">CIÊNCIA, DISCIPLINA</span><br>E RESULTADO <span class="red-accent">REAL.</span></h1>
         <p class="lead">Acompanhamento individualizado criado por Sid Lobo. Treino, nutrição esportiva e suporte contínuo para quem quer emagrecer, construir um físico estético ou subir nos palcos para competir.</p>
         <div class="cta">
-          <a class="btn mag shimmer" data-wa="Olá, vim pelo site e gostaria de iniciar minha consultoria." href="#contato">INICIAR CONSULTORIA NO WHATSAPP →</a>
+          <a class="btn mag shimmer" id="hero-wa-cta" data-wa="Olá, vim pelo site e gostaria de iniciar minha consultoria." href="#contato">INICIAR CONSULTORIA NO WHATSAPP →</a>
           <a class="btn ghost" href="#alunos">Ver evolução dos alunos</a>
         </div>
 
@@ -451,7 +487,7 @@ try{var s=localStorage.getItem("tl-theme");document.documentElement.dataset.them
     </div>
   </section>
 
-  <!-- PARCEIROS OFICIAIS (SEM MASCARENHAS) -->
+  <!-- PARCEIROS OFICIAIS -->
   <section id="parceiros" style="background:var(--surface)">
     <div class="wrap">
       <div class="head rv"><span class="tag">Ecossistema de apoio</span><h2>Parceiros que fortalecem <span class="chrome">a preparação do time.</span></h2></div>
@@ -503,11 +539,44 @@ try{var s=localStorage.getItem("tl-theme");document.documentElement.dataset.them
   </div>
 </footer>
 
-<!-- Pílula Flutuante Inteligente de WhatsApp -->
-<a class="wa visible" id="wa-pill" data-wa="Olá, vim pelo site e gostaria de tirar dúvidas com Sid Lobo." href="#contato" aria-label="Falar no WhatsApp">
+<!-- Pílula Flutuante de WhatsApp (aparece suavemente só depois que o CTA principal sair da tela) -->
+<a class="wa" id="wa-pill" data-wa="Olá, vim pelo site e gostaria de tirar dúvidas com Sid Lobo." href="#contato" aria-label="WhatsApp">
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.7 7.1L4 20l1-4.9A8 8 0 1 1 21 12z"/></svg>
-  <span id="wa-label">Tirar dúvidas com Sid Lobo</span>
+  <span>WhatsApp</span>
 </a>
+
+<script>
+(function(){
+  var v = document.getElementById("hero-bg-video");
+  if (v) {
+    v.muted = true;
+    var p = v.play();
+    if (p && p.catch) p.catch(function(){});
+  }
+
+  var cta = document.getElementById("hero-wa-cta");
+  var pill = document.getElementById("wa-pill");
+  if (!cta || !pill) return;
+
+  function setShown(show){
+    pill.classList.toggle("is-shown", show);
+  }
+
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        setShown(!entry.isIntersecting && window.scrollY > 60);
+      });
+    }, { threshold: 0.1 });
+    io.observe(cta);
+  } else {
+    window.addEventListener("scroll", function(){
+      var rect = cta.getBoundingClientRect();
+      setShown(rect.bottom < 0);
+    }, { passive: true });
+  }
+})();
+</script>
 
 <!-- GSAP + ScrollTrigger via CDN -->
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
